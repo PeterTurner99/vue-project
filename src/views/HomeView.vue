@@ -1,9 +1,15 @@
-<script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <main>
-    <TheWelcome />
+    <div class="centered">
+      <h3>Home page</h3>
+    </div>
   </main>
 </template>
+
+<style scoped>
+.centered {
+  text-align: center;
+}
+</style>
