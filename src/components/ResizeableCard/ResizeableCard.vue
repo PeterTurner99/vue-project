@@ -21,7 +21,9 @@ const mouseY = ref(0)
 const initialWidth = ref(0)
 const initialHeight = ref(0)
 const initialLeft = ref(0)
+const initialRight = ref(0)
 const initialTop = ref(0)
+const initialBottom = ref(0)
 const changeHeightFromTop = ref(false)
 const changeWidthFromLeft = ref(false)
 const changeHeightFromBottom = ref(false)
@@ -38,6 +40,8 @@ function startResizeCard(event: MouseEvent) {
   initialTop.value = dims.top
   initialHeight.value = height
   initialWidth.value = width
+  initialRight.value = dims.right
+  initialBottom.value = dims.bottom
   if (event.offsetY < 25) {
     changeHeightFromTop.value = true
   }
@@ -77,17 +81,44 @@ function resizeCard(event: MouseEvent) {
   const elem = resizeableCard.value as HTMLElement
   const width = event.pageX - mouseX.value
   const height = event.pageY - mouseY.value
+
   if (changeHeightFromBottom.value || changeHeightFromTop.value) {
-    const newHeight = height * (changeHeightFromTop.value ? -1 : 1) + initialHeight.value
+    let heightMultiplier = 1
+    let removeHeight = false
     if (changeHeightFromTop.value) {
-      elem!.parentElement!.parentElement!.style.top = (initialTop.value + height).toString() + 'px'
+      heightMultiplier = -1 * heightMultiplier
+    }
+    if (
+      (changeHeightFromTop.value && event.pageY > initialBottom.value) ||
+      (changeHeightFromBottom.value && event.pageY < initialTop.value)
+    ) {
+      heightMultiplier = -1 * heightMultiplier
+      removeHeight = true
+    }
+    const newHeight = height * heightMultiplier + initialHeight.value * (removeHeight ? -1 : 1)
+    if (heightMultiplier == -1) {
+      elem!.parentElement!.parentElement!.style.top =
+        ((removeHeight ? initialBottom.value : initialTop.value) + height).toString() + 'px'
     }
     elem.parentElement!.style.height = newHeight.toString() + 'px'
   }
   if (changeWidthFromLeft.value || changeWidthFromRight.value) {
-    const newWidth = width * (changeWidthFromLeft.value ? -1 : 1) + initialWidth.value
+    let widthMultiplier = 1
+    let removeWidth = false
     if (changeWidthFromLeft.value) {
-      elem!.parentElement!.parentElement!.style.left = (initialLeft.value + width).toString() + 'px'
+      widthMultiplier = -1 * widthMultiplier
+    }
+    if (
+      (changeWidthFromLeft.value && event.pageX > initialRight.value) ||
+      (changeWidthFromRight.value && event.pageX < initialLeft.value)
+    ) {
+      widthMultiplier = -1 * widthMultiplier
+      removeWidth = true
+    }
+    const newWidth = width * widthMultiplier + initialWidth.value * (removeWidth ? -1 : 1)
+    if (widthMultiplier == -1) {
+      elem!.parentElement!.parentElement!.style.left =
+        ((removeWidth ? initialRight.value : initialLeft.value) + width).toString() + 'px'
     }
     elem.parentElement!.style.width = newWidth.toString() + 'px'
   }
@@ -121,10 +152,10 @@ addEventListener('mouseup', () => {
   position: absolute;
   background-color: red;
   z-index: 1;
-  width: calc(100% + 2px);
-  height: calc(100% + 2px);
-  top: -1px;
-  left: -1px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  top: -5px;
+  left: -5px;
   border-radius: 5px;
 }
 </style>

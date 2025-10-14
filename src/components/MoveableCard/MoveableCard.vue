@@ -90,6 +90,8 @@ addEventListener('mouseup', () => {
   border-radius: 10px;
   z-index: 5;
   position: absolute;
+  min-width: fit-content;
+  min-height: fit-content;
 }
 .innerContent {
   z-index: 5;
