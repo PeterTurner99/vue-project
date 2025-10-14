@@ -71,7 +71,7 @@ addEventListener('mouseup', () => {
 <template>
   <div @mousedown="MoveCard($event)" ref="moveableCard" class="MoveableCard">
     <div class="ContentSection">
-      <ResizeableCard v-if="props.Resizeable" :Measurement="props.Measurement"></ResizeableCard>
+      <ResizeableCard v-if="props.Resizeable"></ResizeableCard>
 
       <div class="innerContent">
         <slot />
@@ -91,7 +91,7 @@ addEventListener('mouseup', () => {
   z-index: 5;
   position: absolute;
   min-width: fit-content;
-  min-height: fit-content;
+  min-height: 120px;
 }
 .innerContent {
   z-index: 5;

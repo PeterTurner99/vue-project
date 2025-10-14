@@ -1,19 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-const props = defineProps({
-  Measurement: {
-    type: String,
-    default: 'pixels',
-  },
-  Resizeable: {
-    type: Boolean,
-    default: false,
-  },
-})
-const CONVERSION_OBJ: Record<string, string> = {
-  pixels: 'px',
-  percent: '%',
-}
 const mouseDown = ref(false)
 const mouseX = ref(0)
 const resizeableCard = ref<HTMLElement | null>(null)
