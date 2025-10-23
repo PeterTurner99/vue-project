@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { onMounted } from 'vue'
 import ResizeableCard from '../ResizeableCard/ResizeableCard.vue'
+import type { MoveableCardType } from './MoveableCardTypes'
 const props = defineProps({
   Measurement: {
     type: String,
@@ -11,15 +12,55 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  left: {
+    type: Number,
+    default: 100,
+  },
+  top: {
+    type: Number,
+    default: 100,
+  },
+  width: {
+    type: Number,
+    default: 100,
+  },
+  height: {
+    type: Number,
+    default: 100,
+  },
+  id: {
+    type: Number,
+  },
+  header: {
+    type: [String, HTMLElement],
+    default: 'test1',
+  },
+  content: {
+    type: [String, HTMLElement],
+    default: 'testt',
+  },
 })
+const emit = defineEmits(['layerChanged', 'cardMoved', 'cardResized'])
 const CONVERSION_OBJ: Record<string, string> = {
   pixels: 'px',
   percent: '%',
 }
+const resizeable = ref(props.Resizeable)
 const mouseDown = ref(false)
 const mouseXOffset = ref(0)
 const moveableCard = ref<HTMLElement | null>(null)
 const mouseYOffset = ref(0)
+const card_details = ref({
+  resizeable: props.Resizeable,
+  measurement: props.Measurement,
+  left: props.left,
+  top: props.top,
+  width: props.width,
+  height: props.height,
+  id: props.id,
+  header: props.header,
+  content: props.header,
+})
 function MoveCard(event: MouseEvent) {
   mouseDown.value = true
   mouseXOffset.value = event.offsetX
@@ -28,9 +69,16 @@ function MoveCard(event: MouseEvent) {
     return false
   }
 }
+function resizeCard(new_card: MoveableCardType) {
+  card_details.value.width = new_card.width
+  card_details.value.height = new_card.height
+  card_details.value.left = new_card.left
+  card_details.value.top = new_card.top
+  card_details.value.measurement = new_card.measurement
+  emit('cardResized', card_details.value)
+}
 
 onMounted(() => {
-  const converted = CONVERSION_OBJ[props.Measurement]
   addEventListener('mousemove', (event: MouseEvent) => {
     if (mouseDown.value == true) {
       const x = event.pageX - mouseXOffset.value
@@ -40,23 +88,19 @@ onMounted(() => {
       const parent = elem!.parentNode
       if (parent!.firstChild != elem.nodeValue) {
         parent!.appendChild(elem)
-
+        emit('layerChanged', props.id, card_details.value)
         // clone the element and insert the cloned element as the first child, preserving the HTMLDivElement type
         elem.addEventListener('mousedown', (event) => MoveCard(event))
         moveableCard.value = elem
       }
-      let x_string
-      let y_string
       if (props.Measurement == 'percent') {
-        x_string = ((Math.max(x, 0) / window.innerWidth) * 100).toString()
-        y_string = ((Math.max(y, 0) / window.innerHeight) * 100).toString()
+        card_details.value.left = (Math.max(x, 0) / window.innerWidth) * 100
+        card_details.value.top = (Math.max(y, 0) / window.innerHeight) * 100
       } else {
-        x_string = Math.max(x, 0).toString()
-        y_string = Math.max(y, 0).toString()
+        card_details.value.left = Math.max(x, 0)
+        card_details.value.top = Math.max(y, 0)
       }
-
-      elem!.style.left = x_string + converted
-      elem!.style.top = y_string + converted
+      emit('cardMoved', card_details.value)
     }
   })
 })
@@ -69,9 +113,35 @@ addEventListener('mouseup', () => {
 </script>
 
 <template>
-  <div @mousedown="MoveCard($event)" ref="moveableCard" class="MoveableCard">
-    <div class="ContentSection">
-      <ResizeableCard v-if="props.Resizeable"></ResizeableCard>
+  <div
+    @mousedown="MoveCard($event)"
+    ref="moveableCard"
+    :style="{
+      left: card_details.left.toString() + CONVERSION_OBJ[Measurement],
+      top: card_details.top.toString() + CONVERSION_OBJ[Measurement],
+    }"
+    class="MoveableCard"
+  >
+    <div
+      class="ContentSection"
+      :style="{
+        width: card_details.width.toString() + 'px',
+        height: card_details.height.toString() + 'px',
+      }"
+    >
+      <ResizeableCard
+        v-if="resizeable"
+        @card-resized="resizeCard"
+        :Resizeable="card_details.resizeable"
+        :Measurement="card_details.measurement"
+        :left="card_details.left"
+        :top="card_details.top"
+        :width="card_details.width"
+        :height="card_details.height"
+        :id="card_details.id"
+        :header="card_details.header"
+        :content="card_details.content"
+      ></ResizeableCard>
 
       <div class="innerContent">
         <slot />
@@ -100,5 +170,6 @@ addEventListener('mouseup', () => {
   border-radius: 10px;
   position: relative;
   height: 100%;
+  min-height: 100px;
 }
 </style>
