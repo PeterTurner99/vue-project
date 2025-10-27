@@ -5,6 +5,7 @@ import MoveableCardHeader from '@/components/MoveableCard/MoveableCardHeader.vue
 import { onMounted, ref } from 'vue'
 import { getCookie, saveCookie } from '@/Lib/Cookies.vue'
 import type { MoveableCardType } from '@/components/MoveableCard/MoveableCardTypes'
+import EditableContent from '@/components/EditableContent/EditableContent.vue'
 const titleText = ref('')
 const titleSpan = ref<HTMLElement | null>(null)
 const titleInput = ref<HTMLElement | null>(null)
@@ -96,8 +97,21 @@ onMounted(() => {
               :header="card.header"
               :content="card.content"
             >
-              <MoveableCardHeader :v-if="card.header">{{ card.header }}</MoveableCardHeader>
-              <MoveableCardContent :v-if="card.content">{{ card.content }} </MoveableCardContent>
+              <MoveableCardHeader :v-if="card.header">
+                <EditableContent
+                  :id="'header-' + card.id"
+                  :text-content="card.header"
+                  :use-cookies="true"
+                ></EditableContent>
+              </MoveableCardHeader>
+              <MoveableCardContent :v-if="card.content">
+                <EditableContent
+                  :id="'content-' + card.id"
+                  :text-content="card.content"
+                  :use-cookies="true"
+                  :text-area="true"
+                ></EditableContent>
+              </MoveableCardContent>
             </MoveableCard>
           </template>
         </template>

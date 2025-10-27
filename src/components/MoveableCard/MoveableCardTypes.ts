@@ -1,8 +1,8 @@
 export type MoveableCardType = {
   resizeable: boolean
   measurement: 'pixels' | 'percent'
-  header: string | HTMLElement
-  content: string | HTMLElement
+  header: string
+  content: string
   left: number
   top: number
   width: number
