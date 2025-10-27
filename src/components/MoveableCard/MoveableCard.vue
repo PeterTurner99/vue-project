@@ -62,7 +62,12 @@ const card_details = ref({
   content: props.header,
 })
 function MoveCard(event: MouseEvent) {
+  const target = event.target as HTMLElement
+  if (target.tagName && target.tagName.toLowerCase() == 'textarea') {
+    return
+  }
   mouseDown.value = true
+  console.log(event.target)
   mouseXOffset.value = event.offsetX
   mouseYOffset.value = event.offsetY
   document.onselectstart = () => {
